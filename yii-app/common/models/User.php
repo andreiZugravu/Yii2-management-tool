@@ -147,6 +147,14 @@ class User extends ActiveRecord implements IdentityInterface
     }
 
     /**
+     * Get Role
+     */
+    public function getRole()
+    {
+        return $this->Role;
+    }
+
+    /**
      * Validates password
      *
      * @param string $password password to validate

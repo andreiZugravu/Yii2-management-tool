@@ -1,6 +1,7 @@
 <?php
 namespace frontend\controllers;
 
+use common\models\Ticket;
 use Yii;
 use yii\base\InvalidParamException;
 use yii\helpers\VarDumper;
@@ -9,6 +10,7 @@ use yii\web\Controller;
 use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
+use common\models\TicketForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -239,11 +241,38 @@ class SiteController extends Controller
 
     public function actionAssignTickets() /* ALSO CHECK if it's Admin / Project Manager */
     {
-        if (Yii::$app->user->isGuest) {
+        if (Yii::$app->user->isGuest) { //must be logged in
             return $this->actionLogin();
         }
+        else if(Yii::$app->user->identity->getRole() != "Project Manager") {//must be a project manager
+            return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
+        }
         else {
-            return $this->render('assignTickets', ['model' => Yii::$app->user->identity]);
+            if (Yii::$app->request->isPost) {
+                $model = new TicketForm();
+                $postData = Yii::$app->request->post('TicketForm');
+                $model->description = $postData['description'];
+                $model->status = $postData['status'];
+                $model->users = $postData['users'];
+                $model->deadline = $postData['deadline'];
+                $ticket = $model->assign();
+
+                if ($ticket !== false) {
+                    Yii::$app->session->setFlash('success', "Ticket assigned.");
+                    return $this->refresh();
+                }
+
+                //VarDumper::dump($model->attributes, 10, true);
+                //VarDumper::dump($postData, 10, true);
+            } else {
+                $model = new TicketForm();
+                if ($model->load(Yii::$app->request->post())) {
+                    return $this->goBack();
+                }
+                return $this->render('assignTickets', ['ticketModel' => $model]);
+            }
+
+
         }
     }
 }

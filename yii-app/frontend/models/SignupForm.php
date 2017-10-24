@@ -59,7 +59,7 @@ class SignupForm extends Model
         $user->setPassword($this->password);
         $user->generateAuthKey();
         $user->Role = 'unclassifiedUser';
-        $user->Tickets = "1 2 3";
+        $user->Tickets = ""; //no tickets assigned just yet
 
         return $user->save() ? $user : null;
     }
