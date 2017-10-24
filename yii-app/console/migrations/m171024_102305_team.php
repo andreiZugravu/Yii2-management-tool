@@ -13,18 +13,26 @@ class m171024_102305_team extends Migration
         }
 
         $this->createTable('{{%team}}', [
-            'id'          => $this->primaryKey(),
-            'users_ids'   => $this->string()->notNull(), //might want to give it a default value
-            'tickets_ids' => $this->string()->defaultValue(''),
-            'description' => $this->string()->notNull(),
-            'created_at'  => $this->integer()->notNull(),
-            'updated_at'  => $this->integer()->notNull(),
+            'id'                         => $this->primaryKey(),
+            'name'                       => $this->string()->notNull(),
+            'users_ids'                  => $this->string()->notNull(), //might want to give it a default value
+            'tickets_ids'                => $this->string()->defaultValue(''),
+            'description'                => $this->string()->notNull(),
+
+            'admins_ids'                 => $this->string()->notNull(),
+            'project_manager_id'         => $this->string(),
+            'developers_ids'             => $this->string(),
+            'business_intelligences_ids' => $this->string(),
+            'observers_ids'              => $this->string(),
+
+            'created_at'                 => $this->integer()->notNull(),
+            'updated_at'                 => $this->integer()->notNull(),
         ], $tableOptions);
     }
 
     public function safeDown()
     {
-        $this->dropTable('{{%ticket}}');
+        $this->dropTable('{{%team}}');
 
         return false;
     }

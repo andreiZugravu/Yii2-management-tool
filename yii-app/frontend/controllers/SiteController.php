@@ -11,6 +11,8 @@ use yii\filters\VerbFilter;
 use yii\filters\AccessControl;
 use common\models\LoginForm;
 use common\models\TicketForm;
+use common\models\TeamForm;
+use common\models\ChooseTeamForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
@@ -218,13 +220,23 @@ class SiteController extends Controller
      * This is where I add code
      */
 
+    public function actionChooseTeam()
+    {
+        if (Yii::$app->user->isGuest) {
+            return $this->actionLogin();
+        }
+        else {
+            $chooseTeamForm = new ChooseTeamForm();
+            return $this->render('chooseTeam', ['model' => Yii::$app->user->identity, 'chooseTeamModel' => $chooseTeamForm]);
+        }
+    }
+
     public function actionViewMyTickets()
     {
         if (Yii::$app->user->isGuest) {
             return $this->actionLogin();
         }
         else {
-            // VarDumper::dump(Yii::$app->user->identity, 10, true); exit; //to check that
             return $this->render('viewMyTickets', ['model' => Yii::$app->user->identity]);
         }
     }
@@ -244,7 +256,7 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) { //must be logged in
             return $this->actionLogin();
         }
-        else if(Yii::$app->user->identity->getRole() != "Project Manager") {//must be a project manager
+        else if(Yii::$app->user->identity->getRole() != "Project Manager" && Yii::$app->user->identity->getRole() != "Admin") {//must be a project manager
             return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
         }
         else {
@@ -271,8 +283,41 @@ class SiteController extends Controller
                 }
                 return $this->render('assignTickets', ['ticketModel' => $model]);
             }
+        }
+    }
 
+    public function actionCreateTeam()
+    {
+        if (Yii::$app->user->isGuest) { //must be logged in
+            return $this->actionLogin();
+        }
+        else if(Yii::$app->user->identity->getRole() != "Project Manager" && Yii::$app->user->identity->getRole() != "Admin") {//must be a project manager
+            return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
+        }
+        else
+        {
+            if(Yii::$app->request->isPost)
+            {
+                $model = new TeamForm();
+                $postData = Yii::$app->request->post('TeamForm');
+                $model->name = $postData['name'];
+                $model->description = $postData['description'];
+                $model->users = $postData['users'];
+                $team = $model->create();
 
+                if ($team !== false) {
+                    Yii::$app->session->setFlash('success', "Team created.");
+                    return $this->refresh();
+                }
+            }
+            else
+            {
+                $model = new TeamForm();
+                if ($model->load(Yii::$app->request->post())) {
+                    return $this->goBack();
+                }
+                return $this->render('createTeam', ['teamModel' => $model]);
+            }
         }
     }
 }

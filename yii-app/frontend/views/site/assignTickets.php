@@ -38,7 +38,7 @@ $this->title = 'Assign tickets';
                 $index = 0;
                 foreach($users as $user)
                 {
-                 $usernames[$user->id] = $user->username;
+                    $usernames[$user->id] = $user->username;
                 }
 
                 echo $form->field($ticketModel, 'users')->checkboxList($usernames);

@@ -58,7 +58,6 @@ class SignupForm extends Model
         $user->email = $this->email;
         $user->setPassword($this->password);
         $user->generateAuthKey();
-        $user->Role = 'unclassifiedUser';
         $user->Tickets = ""; //no tickets assigned just yet
 
         return $user->save() ? $user : null;
