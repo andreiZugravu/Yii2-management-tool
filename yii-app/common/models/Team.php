@@ -66,4 +66,12 @@ class Team extends \yii\db\ActiveRecord
             'updated_at'                 => 'Updated At',
         ];
     }
+
+    /**
+     * Get Id function
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
 }

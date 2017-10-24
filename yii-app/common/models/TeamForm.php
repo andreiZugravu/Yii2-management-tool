@@ -9,6 +9,7 @@ use yii\helpers\VarDumper;
 
 class TeamForm extends Model
 {
+    public $id;
     public $name;
     public $description;
     public $users;
@@ -45,6 +46,7 @@ class TeamForm extends Model
         {
             $userids = $this->users;
             foreach ($userids as $id) {
+                //first, add this user to the team
                 $ids = $ids . $id . " ";
             }
         }

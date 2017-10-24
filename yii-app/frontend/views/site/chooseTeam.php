@@ -10,16 +10,17 @@
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
 use common\models\Team;
+use yii\helpers\VarDumper;
 
 $this->title = "Choose a team to continue";
 ?>
-<div class="site-error">
+<div class="site-choose-team">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <div class="row">
         <div class="col-lg-5">
-            <?php $form = ActiveForm::begin(['id' => 'form-assign-tickets']); ?>
+            <?php $form = ActiveForm::begin(['id' => 'form-choose-team']); ?>
 
             <?php
                 $teams_ids = $model->Teams;
@@ -38,7 +39,8 @@ $this->title = "Choose a team to continue";
                         $teamNumber .= $teams_ids[$index];
                         ++$index;
                     }
-
+                    //VarDumper::dump($teamNumber, 10, true);
+                    //Yii::$app->end();
                     $teams_array[$teamNumber] = \common\models\Team::findOne(['id' => $teamNumber])->name;
                 }
 

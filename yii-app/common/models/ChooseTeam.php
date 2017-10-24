@@ -8,5 +8,10 @@ use yii\base\Model;
 
 class ChooseTeam extends Model
 {
-
+    public function attributeLabels()
+    {
+        return [
+            'team_id' => 'Team Id'
+        ];
+    }
 }

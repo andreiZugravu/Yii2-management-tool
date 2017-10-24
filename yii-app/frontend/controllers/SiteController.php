@@ -23,6 +23,7 @@ use frontend\models\ContactForm;
  */
 class SiteController extends Controller
 {
+    private $doneAssigningTickets = false;
     /**
      * @inheritdoc
      */
@@ -220,14 +221,76 @@ class SiteController extends Controller
      * This is where I add code
      */
 
+    private function findIdInString($id_array, $id)
+    {
+        $index = 0;
+        $length = strlen($id_array);
+        $found = false;
+
+        while($index < $length)
+        {
+            while ($index < $length && $id_array[$index] === ' ') ++$index;
+            //ignore white spaces
+
+            $computedString = NULL;
+            while($index < $length && is_numeric($id_array[$index]))
+            {
+                $computedString .= $id_array[$index];
+                ++$index;
+            }
+
+            if($computedString == $id)
+            {
+                $found = true;
+                break;
+            }
+        }
+
+        return $found;
+    }
+
     public function actionChooseTeam()
     {
         if (Yii::$app->user->isGuest) {
             return $this->actionLogin();
         }
         else {
-            $chooseTeamForm = new ChooseTeamForm();
-            return $this->render('chooseTeam', ['model' => Yii::$app->user->identity, 'chooseTeamModel' => $chooseTeamForm]);
+            if(Yii::$app->request->isPost && $this->doneAssigningTickets == false) {
+                $this->doneAssigningTickets = true;
+                $postData = Yii::$app->request->post('ChooseTeamForm');
+
+                $team_id = $postData['team_id'];
+
+                $team_admins_ids = \common\models\Team::findOne(['id' => $team_id])->admins_ids;
+                $team_project_managers_ids = \common\models\Team::findOne(['id' => $team_id])->project_manager_id;
+
+                //to assign a ticket, you must either be an admin or a project manager in that team
+                if($this->findIdInString($team_admins_ids, Yii::$app->user->id) ||
+                        $this->findIdInString($team_project_managers_ids, Yii::$app->user->id))
+                {
+                    $model = new TicketForm();
+                    if ($model->load(Yii::$app->request->post())) {
+                        return $this->goBack();
+                    }
+                    return $this->render('assignTickets', ['ticketModel' => $model]);
+                }
+                else
+                {
+                    //does not have privilege to assign a ticket
+                    return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
+                }
+            }
+            else if(Yii::$app->request->isPost && $this->doneAssigningTickets == true) {
+                $model = new TicketForm();
+                if ($model->load(Yii::$app->request->post())) {
+                    return $this->goBack();
+                }
+                return $this->render('assignTickets', ['ticketModel' => $model]);
+            }
+            else {
+                    $chooseTeamForm = new ChooseTeamForm();
+                    return $this->render('chooseTeam', ['model' => Yii::$app->user->identity, 'chooseTeamModel' => $chooseTeamForm]);
+            }
         }
     }
 
@@ -255,9 +318,6 @@ class SiteController extends Controller
     {
         if (Yii::$app->user->isGuest) { //must be logged in
             return $this->actionLogin();
-        }
-        else if(Yii::$app->user->identity->getRole() != "Project Manager" && Yii::$app->user->identity->getRole() != "Admin") {//must be a project manager
-            return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
         }
         else {
             if (Yii::$app->request->isPost) {
@@ -291,9 +351,9 @@ class SiteController extends Controller
         if (Yii::$app->user->isGuest) { //must be logged in
             return $this->actionLogin();
         }
-        else if(Yii::$app->user->identity->getRole() != "Project Manager" && Yii::$app->user->identity->getRole() != "Admin") {//must be a project manager
+        /*else if(Yii::$app->user->identity->getRole() != "Project Manager" && Yii::$app->user->identity->getRole() != "Admin") {//must be a project manager
             return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
-        }
+        }*/
         else
         {
             if(Yii::$app->request->isPost)
@@ -304,6 +364,17 @@ class SiteController extends Controller
                 $model->description = $postData['description'];
                 $model->users = $postData['users'];
                 $team = $model->create();
+
+                //add this team to the teams_ids of the team_users
+                Yii::$app->user->identity->addTeamId($team->id);
+
+                if($model->users)
+                {
+                    foreach ($model->users as $user_id)
+                    {
+                        \common\models\User::findOne(['id' => $user_id])->addTeamId($team->id); //add this team to teams_ids of all of its members
+                    }
+                }
 
                 if ($team !== false) {
                     Yii::$app->session->setFlash('success', "Team created.");

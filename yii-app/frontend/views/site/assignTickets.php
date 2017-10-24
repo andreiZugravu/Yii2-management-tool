@@ -17,6 +17,7 @@ $this->title = 'Assign tickets';
 
     <div class="row">
         <div class="col-lg-5">
+
             <?php $form = ActiveForm::begin(['id' => 'form-assign-tickets']); ?>
 
             <?= $form->field($ticketModel, 'description')->textInput(['autofocus' => true]) ?>
@@ -42,6 +43,7 @@ $this->title = 'Assign tickets';
                 }
 
                 echo $form->field($ticketModel, 'users')->checkboxList($usernames);
+
             ?>
 
             <?= $form->field($ticketModel,'deadline')->textInput(['autofocus' => true]) ?>

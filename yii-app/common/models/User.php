@@ -21,6 +21,7 @@ use yii\web\IdentityInterface;
  * @property integer $updated_at
  * @property string $role
  * @property string $tickets
+ * @property string $teams
  * @property string $password write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -199,8 +200,9 @@ class User extends ActiveRecord implements IdentityInterface
         $this->password_reset_token = null;
     }
 
-    public function setRole($role)
+    public function addTeamId($teamId)
     {
-
+        $this->Teams  = $this->Teams . $teamId . " ";
+        $this->save(); // !!!!!!!!!!!!!!! :)
     }
 }
