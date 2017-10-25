@@ -29,13 +29,14 @@ $this->title = 'Invite Members';
 
                     if(myHelper::findIdInString($team_admins_ids, Yii::$app->user->id) ||
                         myHelper::findIdInString($team_project_managers_ids, Yii::$app->user->id)) {
-                        $teamNames[$index++] = \common\models\Team::findOne(['id' => $teamId])->name;
+                        $teamNames[$teamId] = \common\models\Team::findOne(['id' => $teamId])->name;
+                        ++$index;
                     }
                 }
 
                 if($index > 0)
                 {
-                    echo $form->field($inviteModel, 'team_id')->checkboxList($teamNames);
+                    echo $form->field($inviteModel, 'team_id')->dropDownList($teamNames);
                 }
                 else
                 {
@@ -47,24 +48,14 @@ $this->title = 'Invite Members';
                 $users = \common\models\User::find()->where(['!=', 'id', $model->id])->all(); //everyone else but me
 
                 $usernames = [];
-                $index = 0;
                 foreach($users as $user)
                 {
-                    $usernames[$index++] = $user->username;
+                    $usernames[$user->id] = $user->username;
                 }
 
-                echo $form->field($inviteModel, 'user_id')->dropDownList($usernames);
+                echo $form->field($inviteModel, 'user_id')->checkboxList($usernames);
             ?>
-            <?=
-                $form->field($inviteModel, 'role')->dropDownList(
-                     [
-                         '1' => 'Admin',
-                         '2' => 'Project Manager',
-                         '3' => 'Developer',
-                         '4' => 'Business Intelligence',
-                         '5' => 'Observer'
-                    ])
-            ?>
+
             <div class="form-group">
                 <?= Html::submitButton('Invite Member', ['class' => 'btn btn-info', 'name' => 'invite-member-button']) ?>
             </div>

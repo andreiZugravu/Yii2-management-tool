@@ -22,6 +22,7 @@ use yii\web\IdentityInterface;
  * @property string $role
  * @property string $tickets
  * @property string $teams
+ * @property string $invites
  * @property string $password write-only password
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -58,6 +59,7 @@ class User extends ActiveRecord implements IdentityInterface
             ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
             [['Role'], 'safe'],
             [['Tickets'], 'safe'],
+            [['Invites'], 'safe']
         ];
     }
 
@@ -210,5 +212,11 @@ class User extends ActiveRecord implements IdentityInterface
     {
         $this->Tickets = $this->Tickets . $ticketId . " ";
         $this->save(); // !!! :)
+    }
+
+    public function addInvite($teamId)
+    {
+        $this->Invites = $this->Invites . $teamId . " ";
+        $this->save();
     }
 }

@@ -406,9 +406,12 @@ class SiteController extends Controller
 
                 $model->team_id = $postData['team_id'];
                 $model->user_id = $postData['user_id'];
-                $model->role    = $postData['role'];
 
-                $invite = $model->invite();
+                $model->invite();
+
+                Yii::$app->session->setFlash('success', "Invites sent.");
+
+                return $this->refresh();
             }
             else
             {

@@ -3,36 +3,37 @@
 namespace common\models;
 
 use \yii\base\Model;
+use \yii\helpers\VarDumper;
+use Yii;
 
 class InviteForm extends Model
 {
     public $team_id;
     public $user_id;
-    public $role;
 
     public function rules()
     {
         return [
-            [['team_id', 'role'], 'required'] //user_id will be the id of the current user
+            [['team_id', 'user_id'], 'required'] //user_id will be the id of the current user
         ];
     }
 
     public function attributeLabels()
     {
         return [
-          'team_id' => 'Your teams',
-          'role' => 'Choose a role'
+          'teams_ids' => 'Your teams',
+          'user_id'   => 'Choose a user',
         ];
     }
 
     public function invite()
     {
-        if($this->team_id) //should never be empty though
+        if($this->user_id) //should never be empty though
         {
-            foreach($this->team_id as $teamId)
+            foreach($this->user_id as $userId)
             {
-                //add team_id_role to the Invites column of the user
-                $a = 0;
+                //add team_id to the Invites column of the user
+                \common\models\User::findOne(['id' => $userId])->addInvite($this->team_id);
             }
         }
     }

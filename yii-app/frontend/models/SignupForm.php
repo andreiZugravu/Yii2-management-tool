@@ -59,6 +59,8 @@ class SignupForm extends Model
         $user->setPassword($this->password);
         $user->generateAuthKey();
         $user->Tickets = ""; //no tickets assigned just yet
+        $user->Teams = "";
+        $user->Invites = "";
 
         return $user->save() ? $user : null;
     }

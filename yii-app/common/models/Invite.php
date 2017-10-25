@@ -6,8 +6,7 @@ use yii\base\Model;
 
 /**
  * @property integer $team_id
- * @property integer $user_id
- * @property string $role
+ * @property array $user_id
  */
 class Invite extends Model
 {
@@ -16,7 +15,6 @@ class Invite extends Model
         return [
             'team_id' => 'Your teams',
             'user_id' => 'User Id',
-            'role'    => 'Role'
         ];
     }
 }
