@@ -74,4 +74,13 @@ class Team extends \yii\db\ActiveRecord
     {
         return $this->id;
     }
+
+    /**
+     * Add ticket id function
+     */
+    public function addTicketId($ticketId)
+    {
+        $this->tickets_ids = $this->tickets_ids . $ticketId . " ";
+        $this->save(); // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! :) :) :) :) :)
+    }
 }

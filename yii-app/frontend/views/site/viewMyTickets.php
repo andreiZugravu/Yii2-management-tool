@@ -3,6 +3,7 @@
 /** @var $model \common\models\User */
 
 use yii\helpers\Html;
+use \common\models\myHelper;
 
 $this->title = 'View my tickets';
 ?>
@@ -11,25 +12,9 @@ $this->title = 'View my tickets';
 </div>
 
 <?php
-    $ticketString = $model->Tickets;
-    $index = 0;
-    $length = strlen($ticketString);
-    $ticketNumber = 0;
-
-    while($index < $length)
+    $tickets = myHelper::stringToArrayIntegers($model->Tickets);
+    foreach ($tickets as $ticket)
     {
-        while ($index < $length && $ticketString[$index] === ' ') ++$index;
-        //ignore white spaces
-
-        $auxString = NULL;
-        while($index < $length && is_numeric($ticketString[$index]))
-        {
-            $auxString .= $ticketString[$index];
-            ++$index;
-        }
-
-        ++$ticketNumber;
-        echo 'Ticket number ' . $ticketNumber . ' : ' . $auxString;
-        echo "<br/>"; //later change this
+        echo $ticket . "<br/>";
     }
 ?>

@@ -5,6 +5,7 @@
 /* @var $message string */
 /* @var $exception Exception */
 /* @var $ticketModel \common\models\Ticket */
+/* @var $chosen_team_id integer */
 
 use yii\helpers\Html;
 use yii\bootstrap\ActiveForm;
@@ -33,13 +34,27 @@ $this->title = 'Assign tickets';
             ) ?>
 
             <?php
-                $users = \common\models\User::findAll(['Role' => 'Developer']);
+                $users= \common\models\Team::findOne(['id' => $chosen_team_id])->users_ids;
 
                 $usernames = [];
                 $index = 0;
-                foreach($users as $user)
+                $length = strlen($users);
+                while($index < $length)
                 {
-                    $usernames[$user->id] = $user->username;
+                    while($index < $length && $users[$index] == ' ') ++$index;
+                    //skip white spaces
+
+                    $userId = NULL;
+                    while($index < $length && is_numeric($users[$index]))
+                    {
+                        $userId .= $users[$index];
+                        ++$index;
+                    }
+
+                    if($userId != NULL)
+                    {
+                        $usernames[$userId] = \common\models\User::findOne(['id' => $userId])->username;
+                    }
                 }
 
                 echo $form->field($ticketModel, 'users')->checkboxList($usernames);

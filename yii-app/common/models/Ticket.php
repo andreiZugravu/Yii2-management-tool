@@ -7,6 +7,7 @@ namespace common\models;
  *
  * @property integer $id
  * @property string $users_ids
+ * @property integer $team_id
  * @property string $description
  * @property string $deadline
  * @property integer $status
@@ -31,7 +32,7 @@ class Ticket extends \yii\db\ActiveRecord
         return [
             [['description'], 'required'],
             [['deadline'], 'safe'],
-            [['status', 'created_at', 'updated_at'], 'integer'],
+            [['status', 'created_at', 'updated_at', 'team_id'], 'integer'],
             [['users_ids', 'description'], 'string', 'max' => 255],
         ];
     }
@@ -44,6 +45,7 @@ class Ticket extends \yii\db\ActiveRecord
         return [
             'id' => 'ID',
             'users_ids' => 'Users Ids',
+            'team_id' => 'Team Id',
             'description' => 'Description',
             'deadline' => 'Deadline',
             'status' => 'Status',

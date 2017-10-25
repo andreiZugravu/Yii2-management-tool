@@ -202,7 +202,13 @@ class User extends ActiveRecord implements IdentityInterface
 
     public function addTeamId($teamId)
     {
-        $this->Teams  = $this->Teams . $teamId . " ";
+        $this->Teams = $this->Teams . $teamId . " ";
         $this->save(); // !!!!!!!!!!!!!!! :)
+    }
+
+    public function addTicketId($ticketId)
+    {
+        $this->Tickets = $this->Tickets . $ticketId . " ";
+        $this->save(); // !!! :)
     }
 }

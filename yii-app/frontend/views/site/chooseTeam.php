@@ -39,9 +39,10 @@ $this->title = "Choose a team to continue";
                         $teamNumber .= $teams_ids[$index];
                         ++$index;
                     }
-                    //VarDumper::dump($teamNumber, 10, true);
-                    //Yii::$app->end();
-                    $teams_array[$teamNumber] = \common\models\Team::findOne(['id' => $teamNumber])->name;
+
+                    if($teamNumber != NULL) // !!!
+                        $teams_array[$teamNumber] = \common\models\Team::findOne(['id' => $teamNumber])->name;
+
                 }
 
                     echo $form->field($chooseTeamModel, 'team_id')->dropDownList($teams_array);

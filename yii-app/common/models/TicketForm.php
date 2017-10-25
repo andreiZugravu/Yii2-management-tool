@@ -13,7 +13,7 @@ class TicketForm extends Model
     public $status;
     public $users;
     public $deadline;
-
+    public $team_id;
     /**
      * rules
      */
@@ -46,10 +46,15 @@ class TicketForm extends Model
         $userids = $this->users;
         $ids = "";
 
-        foreach ($userids as $id)
+        if($userids)
         {
-            $ids = $ids . $id . " ";
+            foreach ($userids as $id)
+            {
+                $ids = $ids . $id . " ";
+            }
         }
+
+        $ticket->team_id = $this->team_id;
 
         $ticket->users_ids = $ids;
 

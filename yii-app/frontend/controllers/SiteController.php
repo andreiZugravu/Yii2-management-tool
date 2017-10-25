@@ -23,7 +23,6 @@ use frontend\models\ContactForm;
  */
 class SiteController extends Controller
 {
-    private $doneAssigningTickets = false;
     /**
      * @inheritdoc
      */
@@ -249,43 +248,37 @@ class SiteController extends Controller
         return $found;
     }
 
+    public function actionNoPermission()
+    {
+        return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
+    }
+
     public function actionChooseTeam()
     {
         if (Yii::$app->user->isGuest) {
             return $this->actionLogin();
         }
         else {
-            if(Yii::$app->request->isPost && $this->doneAssigningTickets == false) {
-                $this->doneAssigningTickets = true;
+            if(Yii::$app->request->isPost) {
                 $postData = Yii::$app->request->post('ChooseTeamForm');
-
                 $team_id = $postData['team_id'];
 
                 $team_admins_ids = \common\models\Team::findOne(['id' => $team_id])->admins_ids;
                 $team_project_managers_ids = \common\models\Team::findOne(['id' => $team_id])->project_manager_id;
 
                 //to assign a ticket, you must either be an admin or a project manager in that team
-                if($this->findIdInString($team_admins_ids, Yii::$app->user->id) ||
-                        $this->findIdInString($team_project_managers_ids, Yii::$app->user->id))
-                {
+                if ($this->findIdInString($team_admins_ids, Yii::$app->user->id) ||
+                    $this->findIdInString($team_project_managers_ids, Yii::$app->user->id)) {
                     $model = new TicketForm();
                     if ($model->load(Yii::$app->request->post())) {
                         return $this->goBack();
                     }
-                    return $this->render('assignTickets', ['ticketModel' => $model]);
+                    return $this->redirect(['assign-tickets', 'chosen_team_id' => $team_id]);
                 }
-                else
-                {
+                else {
                     //does not have privilege to assign a ticket
-                    return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
+                    return $this->redirect(['no-permission']);
                 }
-            }
-            else if(Yii::$app->request->isPost && $this->doneAssigningTickets == true) {
-                $model = new TicketForm();
-                if ($model->load(Yii::$app->request->post())) {
-                    return $this->goBack();
-                }
-                return $this->render('assignTickets', ['ticketModel' => $model]);
             }
             else {
                     $chooseTeamForm = new ChooseTeamForm();
@@ -314,7 +307,7 @@ class SiteController extends Controller
         }
     }
 
-    public function actionAssignTickets() /* ALSO CHECK if it's Admin / Project Manager */
+    public function actionAssignTickets($chosen_team_id) /* ALSO CHECK if it's Admin / Project Manager */
     {
         if (Yii::$app->user->isGuest) { //must be logged in
             return $this->actionLogin();
@@ -324,24 +317,40 @@ class SiteController extends Controller
                 $model = new TicketForm();
                 $postData = Yii::$app->request->post('TicketForm');
                 $model->description = $postData['description'];
+
+                if(!$postData)
+                {
+                    VarDumper::dump($postData, 10, true);
+                    Yii::$app->end();
+                }
                 $model->status = $postData['status'];
                 $model->users = $postData['users'];
                 $model->deadline = $postData['deadline'];
+                $model->team_id = $chosen_team_id;
+
                 $ticket = $model->assign();
 
                 if ($ticket !== false) {
                     Yii::$app->session->setFlash('success', "Ticket assigned.");
+                    //need to also update tickets_ids in the team and Tickets in all the users
+                    //update tickets_ids in the team
+                    \common\models\Team::findOne(['id' => $chosen_team_id])->addTicketId($ticket->id);
+
+                    //UPDATE Tickets in all the users
+                    //no need to check if users is not NULL, since picking at least 1 user upon ticket assignment is mandatory
+                    foreach($model->users as $userId)
+                    {
+                        \common\models\User::findOne(['id' => $userId])->addTicketId($ticket->id);
+                    }
                     return $this->refresh();
                 }
-
-                //VarDumper::dump($model->attributes, 10, true);
-                //VarDumper::dump($postData, 10, true);
-            } else {
+            }
+            else {
                 $model = new TicketForm();
                 if ($model->load(Yii::$app->request->post())) {
                     return $this->goBack();
                 }
-                return $this->render('assignTickets', ['ticketModel' => $model]);
+                return $this->render('assignTickets', ['ticketModel' => $model, 'chosen_team_id' => $chosen_team_id]);
             }
         }
     }
@@ -390,5 +399,15 @@ class SiteController extends Controller
                 return $this->render('createTeam', ['teamModel' => $model]);
             }
         }
+    }
+
+    public function actionViewMyTeams()
+    {
+        return $this->render('viewMyTeams', ['model' => Yii::$app->user->identity]);
+    }
+
+    public function actionViewMyTeamInvitations()
+    {
+        return $this->render('viewMyTeamInvitations', ['model' => Yii::$app->user->identity]);
     }
 }
