@@ -36,4 +36,32 @@ class myHelper
 
         return $array;
     }
+
+    public static function findIdInString($id_array, $id)
+    {
+        $index = 0;
+        $length = strlen($id_array);
+        $found = false;
+
+        while($index < $length)
+        {
+            while ($index < $length && $id_array[$index] === ' ') ++$index;
+            //ignore white spaces
+
+            $computedString = NULL;
+            while($index < $length && is_numeric($id_array[$index]))
+            {
+                $computedString .= $id_array[$index];
+                ++$index;
+            }
+
+            if($computedString == $id)
+            {
+                $found = true;
+                break;
+            }
+        }
+
+        return $found;
+    }
 }

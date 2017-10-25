@@ -25,7 +25,8 @@ class m130524_201442_init extends Migration
             'updated_at'           => $this->integer()->notNull(),
             'Role'                 => $this->string()->notNull()->defaultValue('Unclassified'),
             'Tickets'              => $this->string()->defaultValue(''),
-            'Teams'                => $this->string()->defaultValue('') //aka no team
+            'Teams'                => $this->string()->defaultValue(''), //aka no team
+            'Invites'              => $this->string()->defaultValue('') //aka no invites
         ], $tableOptions);
     }
 

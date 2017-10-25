@@ -8,6 +8,13 @@ use yii\helpers\Html;
 
 $this->title = 'TeamWork';
 ?>
+
+<style>
+    div {
+        text-align: center; /* :) */
+    }
+
+</style>
 <div class="site-index">
 
     <div class="jumbotron">
@@ -34,14 +41,17 @@ $this->title = 'TeamWork';
         </div>
 
         <div class="row">
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <h2> <?php echo Html::a('View team tickets', ['/site/view-team-tickets'], ['class' => 'btn btn-primary btn-lg btn-block']) ?> </h2>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <h2> <?php echo Html::a('View my teams', ['/site/view-my-teams'], ['class' => 'btn btn-warning btn-lg btn-block']) ?> </h2>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <h2> <?php echo Html::a('View my team invitations', ['/site/view-my-team-invitations'], ['class' => 'btn btn-default btn-lg btn-block']) ?> </h2>
+            </div>
+            <div class="col-lg-3 mine">
+                <h2> <?php echo Html::a('Invite members', ['/site/invite-members'], ['class' => 'btn-default btn-lg btn-block']) ?> </h2>
             </div>
         </div>
 

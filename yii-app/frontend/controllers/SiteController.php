@@ -13,10 +13,12 @@ use common\models\LoginForm;
 use common\models\TicketForm;
 use common\models\TeamForm;
 use common\models\ChooseTeamForm;
+use common\models\InviteForm;
 use frontend\models\PasswordResetRequestForm;
 use frontend\models\ResetPasswordForm;
 use frontend\models\SignupForm;
 use frontend\models\ContactForm;
+use common\models\myHelper;
 
 /**
  * Site controller
@@ -220,34 +222,6 @@ class SiteController extends Controller
      * This is where I add code
      */
 
-    private function findIdInString($id_array, $id)
-    {
-        $index = 0;
-        $length = strlen($id_array);
-        $found = false;
-
-        while($index < $length)
-        {
-            while ($index < $length && $id_array[$index] === ' ') ++$index;
-            //ignore white spaces
-
-            $computedString = NULL;
-            while($index < $length && is_numeric($id_array[$index]))
-            {
-                $computedString .= $id_array[$index];
-                ++$index;
-            }
-
-            if($computedString == $id)
-            {
-                $found = true;
-                break;
-            }
-        }
-
-        return $found;
-    }
-
     public function actionNoPermission()
     {
         return $this->render('noPermission', ['model' => Yii::$app->user->identity]);
@@ -267,8 +241,8 @@ class SiteController extends Controller
                 $team_project_managers_ids = \common\models\Team::findOne(['id' => $team_id])->project_manager_id;
 
                 //to assign a ticket, you must either be an admin or a project manager in that team
-                if ($this->findIdInString($team_admins_ids, Yii::$app->user->id) ||
-                    $this->findIdInString($team_project_managers_ids, Yii::$app->user->id)) {
+                if (myHelper::findIdInString($team_admins_ids, Yii::$app->user->id) ||
+                    myHelper::findIdInString($team_project_managers_ids, Yii::$app->user->id)) {
                     $model = new TicketForm();
                     if ($model->load(Yii::$app->request->post())) {
                         return $this->goBack();
@@ -403,11 +377,47 @@ class SiteController extends Controller
 
     public function actionViewMyTeams()
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->actionLogin();
+        }
         return $this->render('viewMyTeams', ['model' => Yii::$app->user->identity]);
     }
 
     public function actionViewMyTeamInvitations()
     {
+        if (Yii::$app->user->isGuest) {
+            return $this->actionLogin();
+        }
         return $this->render('viewMyTeamInvitations', ['model' => Yii::$app->user->identity]);
+    }
+
+    public function actionInviteMembers()
+    {
+        if (Yii::$app->user->isGuest)
+        {
+            return $this->actionLogin();
+        }
+        else
+        {
+            if(Yii::$app->request->isPost)
+            {
+                $postData = Yii::$app->request->post('InviteForm');
+                $model = new InviteForm();
+
+                $model->team_id = $postData['team_id'];
+                $model->user_id = $postData['user_id'];
+                $model->role    = $postData['role'];
+
+                $invite = $model->invite();
+            }
+            else
+            {
+                $modelInvite = new InviteForm();
+                if ($modelInvite->load(Yii::$app->request->post())) {
+                    return $this->goBack();
+                }
+                return $this->render('inviteMembers', ['model' => Yii::$app->user->identity, 'inviteModel' => $modelInvite]);
+            }
+        }
     }
 }
